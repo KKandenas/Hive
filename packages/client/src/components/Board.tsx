@@ -42,14 +42,16 @@ export function Board({ board, myColor, selectedFrom, highlightCells, onPieceTap
   function centerView() {
     const container = containerRef.current;
     if (!container) return;
-    if (cells.length === 0) {
-      setView({ scale: 1, x: 0, y: 0 });
-      return;
-    }
-    const points = cells.map((c) => {
-      const [q, r] = c.key.split(',').map(Number);
-      return hexToPixel({ q, r });
-    });
+    // Before any piece is placed, the board is empty -- but the very first
+    // placement always lands on the origin cell, so center on that in advance
+    // rather than defaulting to the SVG's raw (0,0) top-left corner.
+    const points =
+      cells.length === 0
+        ? [hexToPixel({ q: 0, r: 0 })]
+        : cells.map((c) => {
+            const [q, r] = c.key.split(',').map(Number);
+            return hexToPixel({ q, r });
+          });
     const minX = Math.min(...points.map((p) => p.x));
     const maxX = Math.max(...points.map((p) => p.x));
     const minY = Math.min(...points.map((p) => p.y));
