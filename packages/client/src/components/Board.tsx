@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { Axial, Board as BoardMap, Color, PieceInstance } from '@hive/shared';
+import type { Axial, Board as BoardMap, Color, GameStatus, PieceInstance } from '@hive/shared';
+import { findQueen, isSurrounded } from '@hive/shared';
 import { hexCorners, hexToPixel, HEX_SIZE } from '../hexLayout.js';
 import { INSECT_META, pieceImageSrc } from '../insects.js';
 
@@ -10,6 +11,7 @@ const PIECE_SIZE = HEX_SIZE * 1.8;
 export interface BoardProps {
   board: BoardMap;
   myColor: Color;
+  status: GameStatus;
   selectedFrom: Axial | null;
   highlightCells: Axial[];
   onPieceTap: (pieceId: string, at: Axial) => void;
@@ -26,7 +28,7 @@ function key(a: Axial): string {
   return `${a.q},${a.r}`;
 }
 
-export function Board({ board, myColor, selectedFrom, highlightCells, onPieceTap, onTargetTap }: BoardProps) {
+export function Board({ board, myColor, status, selectedFrom, highlightCells, onPieceTap, onTargetTap }: BoardProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [view, setView] = useState<ViewState>({ scale: 1, x: 0, y: 0 });
   const pointers = useRef(new Map<number, { x: number; y: number }>());
@@ -38,6 +40,16 @@ export function Board({ board, myColor, selectedFrom, highlightCells, onPieceTap
 
   const cells = useMemo(() => Array.from(board.entries()).map(([k, stack]) => ({ key: k, stack })), [board]);
   const highlightSet = useMemo(() => new Set(highlightCells.map(key)), [highlightCells]);
+
+  const surroundedQueenCells = useMemo(() => {
+    if (status === 'IN_PROGRESS') return new Set<string>();
+    const set = new Set<string>();
+    for (const color of ['WHITE', 'BLACK'] as Color[]) {
+      const queenAt = findQueen(board, color);
+      if (queenAt && isSurrounded(board, queenAt)) set.add(key(queenAt));
+    }
+    return set;
+  }, [board, status]);
 
   function centerView() {
     const container = containerRef.current;
@@ -144,6 +156,7 @@ export function Board({ board, myColor, selectedFrom, highlightCells, onPieceTap
             const top = stack[stack.length - 1] as PieceInstance;
             const isHighlighted = highlightSet.has(k);
             const isSelected = selectedFrom && selectedFrom.q === q && selectedFrom.r === r;
+            const isSurroundedQueen = surroundedQueenCells.has(k);
             const meta = INSECT_META[top.insect];
             return (
               <g
@@ -159,6 +172,9 @@ export function Board({ board, myColor, selectedFrom, highlightCells, onPieceTap
                   else onPieceTap(top.id, { q, r });
                 }}
               >
+                {isSurroundedQueen && (
+                  <polygon points={hexCorners({ x: 0, y: 0 }, HEX_SIZE * 1.15)} className="surrounded-glow" />
+                )}
                 {stack.length > 1 && (
                   <polygon points={hexCorners({ x: 4, y: 4 }, HEX_SIZE)} className="hex-shadow" />
                 )}

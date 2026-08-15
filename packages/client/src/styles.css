@@ -366,6 +366,26 @@ button {
   fill: rgba(0, 0, 0, 0.4);
 }
 
+.surrounded-glow {
+  fill: rgba(217, 83, 79, 0.35);
+  stroke: #ff6b5e;
+  stroke-width: 4;
+  animation: surrounded-pulse 1.4s ease-in-out infinite;
+  transform-origin: center;
+}
+
+@keyframes surrounded-pulse {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
 .hex-piece {
   cursor: pointer;
 }
@@ -482,4 +502,107 @@ button {
   font-size: 0.8rem;
   font-weight: 700;
   opacity: 0.85;
+}
+
+/* ---------- Game over overlay ---------- */
+
+.game-over-layer {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 60;
+  pointer-events: none;
+}
+
+.game-over-card {
+  pointer-events: auto;
+  position: relative;
+  background: linear-gradient(180deg, rgba(43, 32, 21, 0.97), rgba(24, 17, 10, 0.97));
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 18px;
+  padding: 28px 24px 24px;
+  max-width: 360px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.6);
+  animation: game-over-in 0.35s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+}
+
+@keyframes game-over-in {
+  from {
+    opacity: 0;
+    transform: scale(0.85) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.game-over-card h2 {
+  margin: 0 0 8px;
+  font-size: 1.8rem;
+}
+
+.game-over-card.win h2 {
+  color: var(--gold);
+}
+
+.game-over-card.lose h2 {
+  color: var(--ivory);
+}
+
+.game-over-card.draw h2 {
+  color: var(--accent);
+}
+
+.game-over-card p {
+  margin: 0 0 20px;
+  opacity: 0.85;
+}
+
+.game-over-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.game-over-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+}
+
+/* ---------- Confetti ---------- */
+
+.confetti-layer {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 65;
+}
+
+.confetti-piece {
+  position: absolute;
+  top: -5%;
+  border-radius: 1px;
+  opacity: 0.95;
+  animation-name: confetti-fall;
+  animation-timing-function: ease-in;
+  animation-fill-mode: forwards;
+}
+
+@keyframes confetti-fall {
+  0% {
+    transform: translate(0, 0) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--drift), 115vh) rotate(calc(var(--rot) + 540deg));
+    opacity: 0.3;
+  }
 }

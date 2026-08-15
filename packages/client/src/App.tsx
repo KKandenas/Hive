@@ -24,6 +24,7 @@ import { StatusBar } from './components/StatusBar.js';
 import { Board } from './components/Board.js';
 import { Tray } from './components/Tray.js';
 import { RulesModal } from './components/RulesModal.js';
+import { GameOverOverlay } from './components/GameOverOverlay.js';
 
 const STORAGE_KEY = 'hive.room';
 
@@ -59,6 +60,7 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [selection, setSelection] = useState<Selection>(null);
   const [showRules, setShowRules] = useState(false);
+  const [gameOverDismissed, setGameOverDismissed] = useState(false);
 
   const attemptedReconnect = useRef(false);
 
@@ -96,6 +98,7 @@ export default function App() {
       setMyColor(res.color);
       setGameState(deserializeGameState(res.state));
       setOpponentConnected(res.opponentConnected);
+      setGameOverDismissed(false);
       saveStoredRoom({ code: res.code, token: res.token, color: res.color });
     });
   }, []);
@@ -110,6 +113,7 @@ export default function App() {
       setMyColor(res.color);
       setGameState(deserializeGameState(res.state));
       setOpponentConnected(res.opponentConnected);
+      setGameOverDismissed(false);
       saveStoredRoom({ code: res.code, token: res.token, color: res.color });
     });
   }, []);
@@ -129,6 +133,7 @@ export default function App() {
       setMyColor(res.color);
       setGameState(deserializeGameState(res.state));
       setOpponentConnected(res.opponentConnected);
+      setGameOverDismissed(false);
       saveStoredRoom({ code: res.code, token: res.token, color: res.color });
     });
   }, []);
@@ -190,8 +195,7 @@ export default function App() {
     sendMove({ type: 'pass', color: myColor });
   }, [myColor, sendMove]);
 
-  const handleLeave = useCallback(() => {
-    if (!window.confirm('Vill du lämna spelet? Rumskoden slutar fungera för dig.')) return;
+  const leaveRoom = useCallback(() => {
     if (code && token) {
       const req: LeaveRoomRequest = { code, token };
       socket.emit(EVENTS.LEAVE_ROOM, req, () => {});
@@ -205,6 +209,18 @@ export default function App() {
     setSelection(null);
     setError(null);
   }, [code, token]);
+
+  const handleLeave = useCallback(() => {
+    // No need to confirm once the game has already ended -- there's nothing left to lose.
+    const gameIsOver = gameState?.status !== 'IN_PROGRESS';
+    if (!gameIsOver && !window.confirm('Vill du lämna spelet? Rumskoden slutar fungera för dig.')) return;
+    leaveRoom();
+  }, [gameState, leaveRoom]);
+
+  const handlePlayAgain = useCallback(() => {
+    leaveRoom();
+    handleCreate();
+  }, [leaveRoom, handleCreate]);
 
   const highlightCells: Axial[] = useMemo(() => {
     if (!legal || !selection || !isMyTurn) return [];
@@ -244,6 +260,7 @@ export default function App() {
       <Board
         board={gameState.board}
         myColor={myColor}
+        status={gameState.status}
         selectedFrom={selection?.type === 'board' ? selection.from : null}
         highlightCells={highlightCells}
         onPieceTap={handlePieceTap}
@@ -257,6 +274,15 @@ export default function App() {
         onSelect={handleReserveSelect}
       />
       {showRules && <RulesModal onClose={() => setShowRules(false)} />}
+      {gameState.status !== 'IN_PROGRESS' && !gameOverDismissed && (
+        <GameOverOverlay
+          status={gameState.status}
+          myColor={myColor}
+          onPlayAgain={handlePlayAgain}
+          onGoHome={handleLeave}
+          onDismiss={() => setGameOverDismissed(true)}
+        />
+      )}
     </div>
   );
 }
