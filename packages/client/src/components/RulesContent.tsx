@@ -1,11 +1,19 @@
+import type { Insect } from '@hive/shared';
+import { INSECT_META, pieceImageSrc } from '../insects.js';
+
+function PieceIcon({ insect }: { insect: Insect }) {
+  return <img className="rules-piece-icon" src={pieceImageSrc(insect, 'WHITE')} alt={INSECT_META[insect].label} />;
+}
+
 export function RulesContent() {
   return (
     <div className="rules-content">
       <section>
         <h3>Mål</h3>
         <p>
-          Omringa motståndarens Bidrottning 🐝 helt — alla sex angränsande rutor fyllda med valfri pjäs, oavsett
-          färg — så vinner du. Om ett drag omringar båda bidrottningarna samtidigt blir det oavgjort.
+          Omringa motståndarens <PieceIcon insect="QUEEN" /> Bidrottning helt — alla sex angränsande rutor
+          fyllda med valfri pjäs, oavsett färg — så vinner du. Om ett drag omringar båda bidrottningarna
+          samtidigt blir det oavgjort.
         </p>
       </section>
 
@@ -36,26 +44,41 @@ export function RulesContent() {
 
       <section>
         <h3>Hur varje pjäs rör sig</h3>
-        <ul>
-          <li>
-            <strong>Bidrottning 🐝</strong> — ett steg till ett angränsande tomrum.
+        <ul className="rules-piece-list">
+          <li className="rules-piece-row">
+            <PieceIcon insect="QUEEN" />
+            <div>
+              <strong>Bidrottning</strong> — ett steg till ett angränsande tomrum.
+            </div>
           </li>
-          <li>
-            <strong>Skalbagge 🪲</strong> — ett steg, och kan klättra ovanpå en angränsande pjäs (egen eller
-            motståndarens). En pjäs med en skalbagge ovanpå är låst — den kan inte flyttas, och nya pjäser kan
-            inte placeras mot den (bara mot det skalbaggen själv rör vid just då).
+          <li className="rules-piece-row">
+            <PieceIcon insect="BEETLE" />
+            <div>
+              <strong>Skalbagge</strong> — ett steg, och kan klättra ovanpå en angränsande pjäs (egen eller
+              motståndarens). En pjäs med en skalbagge ovanpå är låst — den kan inte flyttas, och nya pjäser
+              kan inte placeras mot den (bara mot det skalbaggen själv rör vid just då).
+            </div>
           </li>
-          <li>
-            <strong>Gräshoppa 🦗</strong> — hoppar i rät linje över en eller flera pjäser och landar i det
-            första tomrummet på andra sidan. Den behöver inget fritt utrymme för att flytta, bara en rad att
-            hoppa över.
+          <li className="rules-piece-row">
+            <PieceIcon insect="GRASSHOPPER" />
+            <div>
+              <strong>Gräshoppa</strong> — hoppar i rät linje över en eller flera pjäser och landar i det
+              första tomrummet på andra sidan. Den behöver inget fritt utrymme för att flytta, bara en rad att
+              hoppa över.
+            </div>
           </li>
-          <li>
-            <strong>Spindel 🕷️</strong> — flyttar exakt tre steg längs kupans kant, i en sammanhängande
-            rörelse, utan att gå tillbaka över en ruta den redan passerat.
+          <li className="rules-piece-row">
+            <PieceIcon insect="SPIDER" />
+            <div>
+              <strong>Spindel</strong> — flyttar exakt tre steg längs kupans kant, i en sammanhängande rörelse,
+              utan att gå tillbaka över en ruta den redan passerat.
+            </div>
           </li>
-          <li>
-            <strong>Soldatmyra 🐜</strong> — glider valfritt antal steg längs kupans ytterkant.
+          <li className="rules-piece-row">
+            <PieceIcon insect="ANT" />
+            <div>
+              <strong>Soldatmyra</strong> — glider valfritt antal steg längs kupans ytterkant.
+            </div>
           </li>
         </ul>
       </section>

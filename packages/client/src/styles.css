@@ -56,8 +56,13 @@ button {
   margin: 0 0 4px;
 }
 
-.hive-emoji {
-  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.4));
+.hive-title-icon {
+  height: 1.5em;
+  width: auto;
+  vertical-align: middle;
+  margin-right: 0.15em;
+  margin-top: -0.3em;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.5));
 }
 
 .tagline {
@@ -197,6 +202,36 @@ button {
 .rules-content ul {
   margin: 0;
   padding-left: 20px;
+}
+
+.rules-piece-icon {
+  height: 1.4em;
+  width: auto;
+  vertical-align: middle;
+  margin: 0 0.2em;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+}
+
+.rules-piece-list {
+  list-style: none;
+  padding-left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.rules-piece-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rules-piece-row .rules-piece-icon {
+  height: 44px;
+  width: 44px;
+  flex: none;
+  margin: 0;
+  object-fit: contain;
 }
 
 /* ---------- App / game screen ---------- */

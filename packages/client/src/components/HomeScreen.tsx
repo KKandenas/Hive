@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { pieceImageSrc } from '../insects.js';
 
 export interface HomeScreenProps {
   onCreate: () => void;
@@ -14,7 +15,7 @@ export function HomeScreen({ onCreate, onJoin, onShowRules, busy, error }: HomeS
   return (
     <div className="home-screen">
       <h1>
-        <span className="hive-emoji">🐝</span> Hive
+        <img className="hive-title-icon" src={pieceImageSrc('QUEEN', 'WHITE')} alt="" /> Hive
       </h1>
       <p className="tagline">Ett spel för två spelare, var och en på sin egen telefon eller platta.</p>
 
