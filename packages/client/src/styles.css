@@ -1,0 +1,369 @@
+:root {
+  --wood-dark: #2b2015;
+  --wood: #4a3524;
+  --ivory: #f2ead9;
+  --ivory-shade: #d8cbaa;
+  --jet: #17161a;
+  --jet-shade: #333138;
+  --gold: #d4af37;
+  --accent: #7fd1c7;
+  --danger: #d9534f;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: radial-gradient(ellipse at center, var(--wood) 0%, var(--wood-dark) 100%);
+  color: var(--ivory);
+  overscroll-behavior: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+/* ---------- Home screen ---------- */
+
+.home-screen {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: max(24px, env(safe-area-inset-top)) 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-height: 100%;
+  justify-content: center;
+}
+
+.home-screen h1 {
+  font-size: 2.4rem;
+  text-align: center;
+  margin: 0 0 4px;
+}
+
+.hive-emoji {
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.4));
+}
+
+.tagline {
+  text-align: center;
+  opacity: 0.8;
+  margin: 0 0 12px;
+}
+
+.primary-button,
+.secondary-button {
+  border: none;
+  border-radius: 12px;
+  padding: 14px 18px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.primary-button {
+  background: linear-gradient(180deg, var(--gold), #b8912a);
+  color: #241a05;
+}
+
+.primary-button:disabled,
+.secondary-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.join-row {
+  display: flex;
+  gap: 10px;
+}
+
+.join-row input {
+  flex: 1;
+  min-width: 0;
+  border-radius: 12px;
+  border: 1px solid var(--ivory-shade);
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--ivory);
+  padding: 0 14px;
+  font-size: 1.1rem;
+  letter-spacing: 0.15em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.secondary-button {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--ivory);
+  white-space: nowrap;
+}
+
+.error-banner {
+  background: rgba(217, 83, 79, 0.2);
+  border: 1px solid var(--danger);
+  border-radius: 10px;
+  padding: 10px 12px;
+  text-align: center;
+}
+
+.rules-summary {
+  margin-top: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  padding: 10px 14px;
+}
+
+.rules-summary summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.rules-summary ul {
+  margin: 10px 0 0;
+  padding-left: 20px;
+  line-height: 1.5;
+  opacity: 0.9;
+}
+
+/* ---------- App / game screen ---------- */
+
+.app-screen {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: max(10px, env(safe-area-inset-top)) 14px 10px;
+  background: rgba(0, 0, 0, 0.35);
+  font-size: 0.95rem;
+  flex-wrap: wrap;
+}
+
+.status-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.color-chip {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-weight: 700;
+  font-size: 0.8rem;
+  letter-spacing: 0.03em;
+}
+
+.color-chip.white {
+  background: var(--ivory);
+  color: #222;
+}
+
+.color-chip.black {
+  background: var(--jet);
+  color: var(--ivory);
+  border: 1px solid #555;
+}
+
+.room-code {
+  opacity: 0.75;
+  font-variant-numeric: tabular-nums;
+}
+
+.status-center {
+  font-weight: 600;
+  flex: 1;
+  text-align: center;
+}
+
+.pass-button {
+  background: var(--accent);
+  color: #06302b;
+  border: none;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.error-toast {
+  background: rgba(217, 83, 79, 0.85);
+  color: white;
+  text-align: center;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+/* ---------- Board ---------- */
+
+.board-container {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background: repeating-linear-gradient(
+      45deg,
+      rgba(0, 0, 0, 0.08) 0px,
+      rgba(0, 0, 0, 0.08) 2px,
+      transparent 2px,
+      transparent 40px
+    ),
+    var(--wood-dark);
+}
+
+.board-svg {
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  display: block;
+}
+
+.hex-base {
+  stroke: #000;
+  stroke-width: 2;
+  transition: fill 0.15s ease;
+}
+
+.hex-piece.white .hex-base {
+  fill: var(--ivory);
+  stroke: #55483a;
+}
+
+.hex-piece.black .hex-base {
+  fill: var(--jet);
+  stroke: #000;
+}
+
+.hex-shadow {
+  fill: rgba(0, 0, 0, 0.4);
+}
+
+.hex-piece {
+  cursor: pointer;
+}
+
+.hex-piece.mine .hex-base {
+  stroke: var(--gold);
+  stroke-width: 2.5;
+}
+
+.hex-piece.selected .hex-base {
+  stroke: var(--accent);
+  stroke-width: 4;
+}
+
+.hex-piece .hex-base.highlight {
+  stroke: var(--accent);
+  stroke-width: 4;
+  stroke-dasharray: 6 4;
+}
+
+.hex-emoji {
+  pointer-events: none;
+  user-select: none;
+}
+
+.stack-badge circle {
+  fill: #222;
+  stroke: var(--gold);
+  stroke-width: 1.5;
+}
+
+.stack-badge text {
+  fill: var(--ivory);
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.hex-ghost {
+  cursor: pointer;
+}
+
+.hex-ghost .hex-base.empty {
+  fill: rgba(127, 209, 199, 0.15);
+  stroke: var(--accent);
+  stroke-width: 3;
+  stroke-dasharray: 6 4;
+}
+
+.board-controls {
+  position: absolute;
+  right: max(12px, env(safe-area-inset-right));
+  bottom: max(12px, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.board-controls button {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(0, 0, 0, 0.5);
+  color: var(--ivory);
+  font-size: 1.1rem;
+  cursor: pointer;
+}
+
+/* ---------- Tray ---------- */
+
+.tray {
+  display: flex;
+  gap: 8px;
+  padding: 10px max(10px, env(safe-area-inset-left)) max(12px, env(safe-area-inset-bottom));
+  background: rgba(0, 0, 0, 0.35);
+  overflow-x: auto;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.tray-piece {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 58px;
+  padding: 8px 6px;
+  border-radius: 12px;
+  border: 2px solid transparent;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--ivory);
+  cursor: pointer;
+}
+
+.tray-piece:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.tray-piece.selected {
+  border-color: var(--accent);
+  background: rgba(127, 209, 199, 0.2);
+}
+
+.tray-emoji {
+  font-size: 1.6rem;
+}
+
+.tray-count {
+  font-size: 0.8rem;
+  font-weight: 700;
+  opacity: 0.85;
+}
