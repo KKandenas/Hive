@@ -8,6 +8,8 @@ export interface StatusBarProps {
   opponentConnected: boolean;
   canPass: boolean;
   onPass: () => void;
+  onShowRules: () => void;
+  onLeave: () => void;
 }
 
 function statusText(status: GameStatus, myColor: Color, turn: Color, opponentConnected: boolean): string {
@@ -18,7 +20,17 @@ function statusText(status: GameStatus, myColor: Color, turn: Color, opponentCon
   return turn === myColor ? 'Your turn' : "Opponent's turn";
 }
 
-export function StatusBar({ code, myColor, turn, status, opponentConnected, canPass, onPass }: StatusBarProps) {
+export function StatusBar({
+  code,
+  myColor,
+  turn,
+  status,
+  opponentConnected,
+  canPass,
+  onPass,
+  onShowRules,
+  onLeave,
+}: StatusBarProps) {
   return (
     <div className="status-bar">
       <div className="status-left">
@@ -32,6 +44,12 @@ export function StatusBar({ code, myColor, turn, status, opponentConnected, canP
             Pass
           </button>
         )}
+        <button className="icon-button" onClick={onShowRules} aria-label="How to play">
+          ?
+        </button>
+        <button className="icon-button leave-button" onClick={onLeave} aria-label="Leave game">
+          ⎋
+        </button>
       </div>
     </div>
   );

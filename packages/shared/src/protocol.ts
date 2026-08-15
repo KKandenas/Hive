@@ -29,6 +29,11 @@ export interface MakeMoveRequest {
   move: Move;
 }
 
+export interface LeaveRoomRequest {
+  code: string;
+  token: string;
+}
+
 export interface StateUpdatePayload {
   state: SerializedGameState;
   opponentConnected: boolean;
@@ -46,4 +51,5 @@ export const EVENTS = {
   MAKE_MOVE: 'game:move',
   STATE_UPDATE: 'game:state',
   PRESENCE: 'room:presence',
+  LEAVE_ROOM: 'room:leave',
 } as const;

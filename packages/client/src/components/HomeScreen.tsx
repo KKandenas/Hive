@@ -3,11 +3,12 @@ import { useState } from 'react';
 export interface HomeScreenProps {
   onCreate: () => void;
   onJoin: (code: string) => void;
+  onShowRules: () => void;
   busy: boolean;
   error: string | null;
 }
 
-export function HomeScreen({ onCreate, onJoin, busy, error }: HomeScreenProps) {
+export function HomeScreen({ onCreate, onJoin, onShowRules, busy, error }: HomeScreenProps) {
   const [code, setCode] = useState('');
 
   return (
@@ -42,17 +43,9 @@ export function HomeScreen({ onCreate, onJoin, busy, error }: HomeScreenProps) {
 
       {error && <p className="error-banner">{error}</p>}
 
-      <details className="rules-summary">
-        <summary>Quick rules</summary>
-        <ul>
-          <li>Surround the opponent's Queen Bee on all six sides to win.</li>
-          <li>You must place your Queen by your 4th placement.</li>
-          <li>You can't move any piece until your Queen is on the board.</li>
-          <li>New pieces may only touch your own color (except the very first two placements).</li>
-          <li>The hive can never be split into two groups.</li>
-          <li>Queen &amp; Beetle move 1 step, Spider exactly 3, Ant any distance, Grasshopper jumps in a line, Beetle can climb on top of the hive.</li>
-        </ul>
-      </details>
+      <button className="secondary-button rules-button" onClick={onShowRules}>
+        📖 How to play
+      </button>
     </div>
   );
 }

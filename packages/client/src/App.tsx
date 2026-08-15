@@ -12,6 +12,7 @@ import type {
   GameState,
   Insect,
   JoinRoomRequest,
+  LeaveRoomRequest,
   Move,
   PresencePayload,
   RoomSnapshot,
@@ -22,6 +23,7 @@ import { HomeScreen } from './components/HomeScreen.js';
 import { StatusBar } from './components/StatusBar.js';
 import { Board } from './components/Board.js';
 import { Tray } from './components/Tray.js';
+import { RulesModal } from './components/RulesModal.js';
 
 const STORAGE_KEY = 'hive.room';
 
@@ -56,6 +58,7 @@ export default function App() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selection, setSelection] = useState<Selection>(null);
+  const [showRules, setShowRules] = useState(false);
 
   const attemptedReconnect = useRef(false);
 
@@ -187,6 +190,22 @@ export default function App() {
     sendMove({ type: 'pass', color: myColor });
   }, [myColor, sendMove]);
 
+  const handleLeave = useCallback(() => {
+    if (!window.confirm('Leave this game? The room code will stop working for you.')) return;
+    if (code && token) {
+      const req: LeaveRoomRequest = { code, token };
+      socket.emit(EVENTS.LEAVE_ROOM, req, () => {});
+    }
+    saveStoredRoom(null);
+    setCode(null);
+    setToken(null);
+    setMyColor(null);
+    setGameState(null);
+    setOpponentConnected(false);
+    setSelection(null);
+    setError(null);
+  }, [code, token]);
+
   const highlightCells: Axial[] = useMemo(() => {
     if (!legal || !selection || !isMyTurn) return [];
     if (selection.type === 'reserve') {
@@ -196,7 +215,12 @@ export default function App() {
   }, [legal, selection, isMyTurn]);
 
   if (!code || !gameState || !myColor) {
-    return <HomeScreen onCreate={handleCreate} onJoin={handleJoin} busy={busy} error={error} />;
+    return (
+      <>
+        <HomeScreen onCreate={handleCreate} onJoin={handleJoin} onShowRules={() => setShowRules(true)} busy={busy} error={error} />
+        {showRules && <RulesModal onClose={() => setShowRules(false)} />}
+      </>
+    );
   }
 
   return (
@@ -209,6 +233,8 @@ export default function App() {
         opponentConnected={opponentConnected}
         canPass={!!legal?.canPass}
         onPass={handlePass}
+        onShowRules={() => setShowRules(true)}
+        onLeave={handleLeave}
       />
       {error && (
         <div className="error-toast" onClick={() => setError(null)}>
@@ -230,6 +256,7 @@ export default function App() {
         disabled={!isMyTurn}
         onSelect={handleReserveSelect}
       />
+      {showRules && <RulesModal onClose={() => setShowRules(false)} />}
     </div>
   );
 }

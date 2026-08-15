@@ -116,23 +116,83 @@ button {
   text-align: center;
 }
 
-.rules-summary {
-  margin-top: 10px;
-  background: rgba(255, 255, 255, 0.05);
-  border-radius: 12px;
-  padding: 10px 14px;
+.rules-button {
+  margin-top: 4px;
 }
 
-.rules-summary summary {
+/* ---------- Rules modal ---------- */
+
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
+  z-index: 50;
+}
+
+.modal-panel {
+  background: var(--wood-dark);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 16px;
+  max-width: 520px;
+  width: 100%;
+  max-height: min(80vh, 720px);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.modal-close {
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--ivory);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
   cursor: pointer;
-  font-weight: 600;
+  font-size: 1rem;
 }
 
-.rules-summary ul {
-  margin: 10px 0 0;
-  padding-left: 20px;
+.modal-body {
+  overflow-y: auto;
+  padding: 6px 18px 18px;
+}
+
+.rules-content section {
+  margin-top: 16px;
+}
+
+.rules-content h3 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+  color: var(--gold);
+}
+
+.rules-content p,
+.rules-content li {
   line-height: 1.5;
-  opacity: 0.9;
+  opacity: 0.92;
+}
+
+.rules-content ul {
+  margin: 0;
+  padding-left: 20px;
 }
 
 /* ---------- App / game screen ---------- */
@@ -199,6 +259,30 @@ button {
   padding: 8px 14px;
   font-weight: 700;
   cursor: pointer;
+}
+
+.status-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon-button {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--ivory);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.icon-button.leave-button {
+  color: var(--danger);
+  border-color: rgba(217, 83, 79, 0.5);
 }
 
 .error-toast {

@@ -9,6 +9,7 @@ import type {
   CreateRoomRequest,
   ErrorPayload,
   JoinRoomRequest,
+  LeaveRoomRequest,
   MakeMoveRequest,
   RoomSnapshot,
   StateUpdatePayload,
@@ -104,6 +105,25 @@ io.on('connection', (socket) => {
     }
     ack({ ok: true });
     broadcastState(room);
+  });
+
+  socket.on(EVENTS.LEAVE_ROOM, (req: LeaveRoomRequest, ack: (res: { ok: true } | ErrorPayload) => void) => {
+    const room = rooms.getRoom(req.code);
+    if (!room) {
+      ack({ error: 'Room not found.' });
+      return;
+    }
+    const color = rooms.seatForToken(room, req.token);
+    if (!color) {
+      ack({ error: 'Not a recognized player in this room.' });
+      return;
+    }
+    const seat = room.seats[color];
+    if (seat) seat.socketId = null;
+    socket.leave(room.code);
+    if (joinedCode === room.code) joinedCode = null;
+    ack({ ok: true });
+    broadcastPresence(room);
   });
 
   socket.on('disconnect', () => {
