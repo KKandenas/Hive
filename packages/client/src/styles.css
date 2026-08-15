@@ -318,7 +318,10 @@ button {
 }
 
 .hex-base {
-  fill: none;
+  /* transparent (not "none") so the whole hex stays clickable/tappable even
+     when no fill color is shown -- "none" removes it from hit-testing entirely,
+     which let clicks fall through to the board behind each piece. */
+  fill: transparent;
   stroke: transparent;
   stroke-width: 2;
   transition: stroke 0.15s ease;
