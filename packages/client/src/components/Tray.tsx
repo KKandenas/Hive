@@ -1,5 +1,5 @@
 import type { Color, Insect } from '@hive/shared';
-import { INSECT_META, INSECT_ORDER } from '../insects.js';
+import { INSECT_META, INSECT_ORDER, pieceImageSrc } from '../insects.js';
 
 export interface TrayProps {
   color: Color;
@@ -24,7 +24,7 @@ export function Tray({ color, reserves, selectedInsect, disabled, onSelect }: Tr
             onClick={() => onSelect(insect)}
             aria-label={`${meta.label} (${count} kvar)`}
           >
-            <span className="tray-emoji">{meta.emoji}</span>
+            <img className="tray-piece-img" src={pieceImageSrc(insect, color)} alt={meta.label} draggable={false} />
             <span className="tray-count">{count}</span>
           </button>
         );

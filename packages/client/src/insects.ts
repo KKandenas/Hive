@@ -1,4 +1,12 @@
-import type { Insect } from '@hive/shared';
+import type { Color, Insect } from '@hive/shared';
+
+const INSECT_SLUG: Record<Insect, string> = {
+  QUEEN: 'queen',
+  BEETLE: 'beetle',
+  GRASSHOPPER: 'grasshopper',
+  SPIDER: 'spider',
+  ANT: 'ant',
+};
 
 export const INSECT_META: Record<Insect, { label: string; emoji: string }> = {
   QUEEN: { label: 'Bidrottning', emoji: '\u{1F41D}' },
@@ -9,3 +17,7 @@ export const INSECT_META: Record<Insect, { label: string; emoji: string }> = {
 };
 
 export const INSECT_ORDER: Insect[] = ['QUEEN', 'BEETLE', 'GRASSHOPPER', 'SPIDER', 'ANT'];
+
+export function pieceImageSrc(insect: Insect, color: Color): string {
+  return `/pieces/${color.toLowerCase()}-${INSECT_SLUG[insect]}.webp`;
+}

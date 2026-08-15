@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Axial, Board as BoardMap, Color, PieceInstance } from '@hive/shared';
 import { hexCorners, hexToPixel, HEX_SIZE } from '../hexLayout.js';
-import { INSECT_META } from '../insects.js';
+import { INSECT_META, pieceImageSrc } from '../insects.js';
+
+// Slightly larger than the flat-to-flat hex width (HEX_SIZE * sqrt(3)) so tiles
+// snugly touch their neighbors, like physical Hive pieces, without heavy overlap.
+const PIECE_SIZE = HEX_SIZE * 1.8;
 
 export interface BoardProps {
   board: BoardMap;
@@ -157,9 +161,15 @@ export function Board({ board, myColor, selectedFrom, highlightCells, onPieceTap
                   <polygon points={hexCorners({ x: 4, y: 4 }, HEX_SIZE)} className="hex-shadow" />
                 )}
                 <polygon points={hexCorners({ x: 0, y: 0 }, HEX_SIZE)} className={`hex-base ${isHighlighted ? 'highlight' : ''}`} />
-                <text textAnchor="middle" dominantBaseline="central" className="hex-emoji" fontSize={HEX_SIZE * 0.9}>
-                  {meta.emoji}
-                </text>
+                <image
+                  href={pieceImageSrc(top.insect, top.color)}
+                  x={-PIECE_SIZE / 2}
+                  y={-PIECE_SIZE / 2}
+                  width={PIECE_SIZE}
+                  height={PIECE_SIZE}
+                  className="piece-image"
+                  aria-label={meta.label}
+                />
                 {stack.length > 1 && (
                   <g className="stack-badge" transform={`translate(${HEX_SIZE * 0.55} ${-HEX_SIZE * 0.55})`}>
                     <circle r={11} />
