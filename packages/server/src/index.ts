@@ -90,12 +90,12 @@ io.on('connection', (socket) => {
   socket.on(EVENTS.MAKE_MOVE, (req: MakeMoveRequest, ack: (res: { ok: true } | ErrorPayload) => void) => {
     const room = rooms.getRoom(req.code);
     if (!room) {
-      ack({ error: 'Room not found.' });
+      ack({ error: 'Rummet hittades inte.' });
       return;
     }
     const color = rooms.seatForToken(room, req.token);
     if (!color) {
-      ack({ error: 'Not a recognized player in this room.' });
+      ack({ error: 'Du är inte en registrerad spelare i det här rummet.' });
       return;
     }
     const result = rooms.applyPlayerMove(room, color, req.move);
@@ -110,12 +110,12 @@ io.on('connection', (socket) => {
   socket.on(EVENTS.LEAVE_ROOM, (req: LeaveRoomRequest, ack: (res: { ok: true } | ErrorPayload) => void) => {
     const room = rooms.getRoom(req.code);
     if (!room) {
-      ack({ error: 'Room not found.' });
+      ack({ error: 'Rummet hittades inte.' });
       return;
     }
     const color = rooms.seatForToken(room, req.token);
     if (!color) {
-      ack({ error: 'Not a recognized player in this room.' });
+      ack({ error: 'Du är inte en registrerad spelare i det här rummet.' });
       return;
     }
     const seat = room.seats[color];

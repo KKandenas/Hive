@@ -27,6 +27,8 @@ import { movesFor } from './pieces.js';
 
 export const OTHER: Record<Color, Color> = { WHITE: 'BLACK', BLACK: 'WHITE' };
 
+const COLOR_SV: Record<Color, string> = { WHITE: 'Vit', BLACK: 'Svart' };
+
 export function createInitialState(): GameState {
   const emptyCounts = (): Record<Insect, number> => {
     const rec = {} as Record<Insect, number>;
@@ -136,16 +138,16 @@ export interface ApplyResult {
 /** Validates and applies a move against the current legal-move set. Returns a new state. */
 export function applyMove(state: GameState, move: Move): ApplyResult {
   if (state.status !== 'IN_PROGRESS') {
-    return { state, error: 'Game is already over.' };
+    return { state, error: 'Spelet är redan slut.' };
   }
   if (move.color !== state.turn) {
-    return { state, error: `It is not ${move.color}'s turn.` };
+    return { state, error: `Det är inte ${COLOR_SV[move.color]}s tur.` };
   }
 
   const legal = getLegalMoves(state);
 
   if (move.type === 'pass') {
-    if (!legal.canPass) return { state, error: 'You have legal moves available; you cannot pass.' };
+    if (!legal.canPass) return { state, error: 'Du har giltiga drag att göra och kan därför inte passa.' };
     return { state: finishTurn(state, move) };
   }
 
@@ -153,7 +155,7 @@ export function applyMove(state: GameState, move: Move): ApplyResult {
     const ok = legal.placements.some(
       (p) => p.insect === move.insect && p.to.q === move.to.q && p.to.r === move.to.r,
     );
-    if (!ok) return { state, error: 'Illegal placement.' };
+    if (!ok) return { state, error: 'Ogiltig placering.' };
 
     const idx = state.nextPieceIndex[move.color][move.insect] + 1;
     const pieceId = `${move.color}-${move.insect}-${idx}`;
@@ -180,17 +182,17 @@ export function applyMove(state: GameState, move: Move): ApplyResult {
     const ok = legal.movements.some(
       (m) => m.pieceId === move.pieceId && m.to.q === move.to.q && m.to.r === move.to.r,
     );
-    if (!ok) return { state, error: 'Illegal move.' };
+    if (!ok) return { state, error: 'Ogiltigt drag.' };
 
     const { board: lifted, piece } = removeTop(state.board, move.from);
-    if (!piece) return { state, error: 'No piece found to move.' };
+    if (!piece) return { state, error: 'Ingen pjäs hittades att flytta.' };
     const board = placeOnTop(lifted, move.to, piece);
 
     const next = { ...state, board };
     return { state: finishTurn(next, move) };
   }
 
-  return { state, error: 'Unknown move type.' };
+  return { state, error: 'Okänd typ av drag.' };
 }
 
 function finishTurn(state: GameState, move: Move): GameState {

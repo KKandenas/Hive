@@ -50,7 +50,7 @@ export class RoomStore {
    */
   joinRoom(code: string, socketId: string, token?: string): { room: Room; color: Color; token: string } | { error: string } {
     const room = this.getRoom(code);
-    if (!room) return { error: `Room ${code} not found.` };
+    if (!room) return { error: `Rummet ${code} hittades inte.` };
 
     if (token) {
       for (const color of ['WHITE', 'BLACK'] as Color[]) {
@@ -70,7 +70,7 @@ export class RoomStore {
       }
     }
 
-    return { error: 'Room is full.' };
+    return { error: 'Rummet är fullt.' };
   }
 
   seatForToken(room: Room, token: string): Color | undefined {
@@ -99,7 +99,7 @@ export class RoomStore {
   }
 
   applyPlayerMove(room: Room, color: Color, move: Move): { error: string } | { room: Room } {
-    if (move.color !== color) return { error: 'Move color does not match your seat.' };
+    if (move.color !== color) return { error: 'Färgen på draget matchar inte din plats.' };
     const result = applyMove(room.state, move);
     if (result.error) return { error: result.error };
     room.state = result.state;

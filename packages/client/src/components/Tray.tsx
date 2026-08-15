@@ -22,7 +22,7 @@ export function Tray({ color, reserves, selectedInsect, disabled, onSelect }: Tr
             className={`tray-piece ${isSelected ? 'selected' : ''}`}
             disabled={disabled || count === 0}
             onClick={() => onSelect(insect)}
-            aria-label={`${meta.label} (${count} left)`}
+            aria-label={`${meta.label} (${count} kvar)`}
           >
             <span className="tray-emoji">{meta.emoji}</span>
             <span className="tray-count">{count}</span>

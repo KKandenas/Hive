@@ -9,8 +9,8 @@ export function RulesModal({ onClose }: RulesModalProps) {
     <div className="modal-backdrop" onClick={onClose}>
       <div className="modal-panel" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>How to play Hive</h2>
-          <button className="modal-close" onClick={onClose} aria-label="Close rules">
+          <h2>Så spelar du Hive</h2>
+          <button className="modal-close" onClick={onClose} aria-label="Stäng regler">
             ✕
           </button>
         </div>

@@ -1,89 +1,98 @@
 # Hive
 
-A web app implementation of **Hive**, the abstract two-player strategy game
-played with hexagonal insect tiles instead of a board. Each player uses their
-own phone, tablet, or computer — open the same room in a browser on both
-devices and play together over the network.
+En webbapp-implementation av **Hive**, det abstrakta strategispelet för två
+spelare som spelas med sexkantiga insektsbrickor istället för ett bräde.
+Varje spelare använder sin egen telefon, platta eller dator — öppna samma
+rum i en webbläsare på båda enheterna och spela tillsammans över nätverket.
 
-Pieces: Queen Bee 🐝 (1), Beetle 🪲 (2), Grasshopper 🦗 (3), Spider 🕷️ (2),
-Soldier Ant 🐜 (3) per player. All rules from the base game are implemented:
-placement order, the forced Queen-by-turn-4 rule, per-insect movement, the
-one-hive rule, the freedom-to-move (sliding gate) rule, and win/draw
-detection.
+Pjäser: Bidrottning 🐝 (1), Skalbagge 🪲 (2), Gräshoppa 🦗 (3), Spindel 🕷️
+(2), Soldatmyra 🐜 (3) per spelare. Alla regler från grundspelet är
+implementerade: placeringsordning, den tvingade bidrottning-senast-drag-4-
+regeln, varje insekts rörelsemönster, en-kupa-regeln, rörelsefrihets­regeln
+(glid-spärren), samt vinst-/oavgjort-avgörande.
 
-## Project layout
+## Projektstruktur
 
-This is an npm-workspaces monorepo:
+Det här är ett npm-workspaces-monorepo:
 
-- `packages/shared` — the Hive rules engine (TypeScript, framework-free) and
-  the client/server network protocol types. Has its own unit test suite.
-- `packages/server` — an Express + Socket.IO server that hosts game rooms and
-  is the authoritative referee for every move.
-- `packages/client` — a React + Vite web app (mobile-friendly) that renders
-  the hex board and talks to the server over Socket.IO.
+- `packages/shared` — Hive-regelmotorn (TypeScript, ramverksfri) och
+  protokolltyperna för klient/server-kommunikationen. Har sin egen
+  enhetstestsvit.
+- `packages/server` — en Express + Socket.IO-server som håller spelrummen
+  och är den auktoritativa domaren för varje drag.
+- `packages/client` — en React + Vite-webbapp (mobilanpassad) som ritar upp
+  hexbrädet och pratar med servern via Socket.IO.
 
-## Setup
+## Installation
 
 ```bash
 npm install
 ```
 
-## Running it (development)
+## Köra lokalt (utveckling)
 
-You need the shared package built once (server/client import its compiled
-output):
+Det delade paketet behöver byggas en gång (server/klient importerar dess
+kompilerade utdata):
 
 ```bash
 npm run build -w packages/shared
 ```
 
-Then, in two terminals:
+Kör sedan, i två terminaler:
 
 ```bash
-npm run dev:server   # starts the API/socket server on port 3001
-npm run dev:client    # starts the Vite dev server on port 5173
+npm run dev:server   # startar API/socket-servern på port 3001
+npm run dev:client    # startar Vite-devservern på port 5173
 ```
 
-Open `http://localhost:5173` in a browser. On another device on the same
-Wi-Fi, use your computer's LAN IP instead of `localhost`, e.g.
-`http://192.168.1.23:5173`, and set `VITE_SERVER_URL` before starting the
-client dev server if the two devices can't infer the server address
-automatically:
+Öppna `http://localhost:5173` i en webbläsare. På en annan enhet i samma
+Wi-Fi-nätverk, använd datorns lokala IP-adress istället för `localhost`,
+t.ex. `http://192.168.1.23:5173`, och sätt `VITE_SERVER_URL` innan du
+startar klientens devserver om enheterna inte kan lista ut serveradressen
+automatiskt:
 
 ```bash
 VITE_SERVER_URL=http://192.168.1.23:3001 npm run dev:client
 ```
 
-## Running it (production-style, single server)
+## Köra i produktion (en enda server)
 
-The server can also serve the built client directly, so both players just
-open one URL:
+Servern kan även servera den byggda klienten direkt, så att båda
+spelarna bara öppnar en URL:
 
 ```bash
-npm run build            # builds shared, server, and client
+npm run build            # bygger shared, server och client
 node packages/server/dist/index.js
 ```
 
-Then open `http://<host-ip>:3001` on both devices.
+Öppna sedan `http://<server-ip>:3001` på båda enheterna.
 
-## How to play
+### Deploy via Render
 
-1. One player taps **Create New Game** and shares the 4-character room code
-   with the other player.
-2. The other player enters the code and taps **Join Game**.
-3. White moves first. On your turn, tap a piece in your tray to place it (the
-   board highlights legal cells), or tap one of your pieces already on the
-   board to move it (legal destinations are highlighted). Tap a highlighted
-   cell to confirm.
-4. Pinch or use the +/− buttons to zoom, drag to pan, and tap the ⦿ button to
-   re-center the view on the hive.
-5. Surround the opponent's Queen Bee on all six sides to win.
+Repot innehåller en `render.yaml`-blueprint. Koppla GitHub-repot i Render
+(**New +** → **Blueprint**), välj branch, och Render bygger och startar
+appen automatiskt enligt kommandona ovan.
 
-Each browser remembers its seat (color) in a room via `localStorage`, so
-refreshing the page reconnects you to the same game.
+## Så spelar du
 
-## Testing
+1. En spelare trycker på **Starta nytt spel** och delar den 4-teckens
+   rumskoden med den andra spelaren.
+2. Den andra spelaren anger koden och trycker på **Gå med i spel**.
+3. Vit börjar. På din tur trycker du på en pjäs i ditt förråd för att
+   placera den (brädet visar giltiga rutor), eller trycker på en av dina
+   pjäser som redan ligger på brädet för att flytta den (giltiga mål
+   markeras). Tryck på en markerad ruta för att bekräfta.
+4. Nyp ihop fingrarna eller använd +/−-knapparna för att zooma, dra för att
+   panorera, och tryck på ⦿-knappen för att centrera vyn på kupan.
+5. Omringa motståndarens Bidrottning på alla sex sidor för att vinna.
+
+Varje webbläsare kommer ihåg sin plats (färg) i ett rum via `localStorage`,
+så att ladda om sidan ansluter dig till samma spel igen. Med
+"lämna spelet"-knappen i statusfältet kan du när som helst lämna rummet och
+gå tillbaka till startskärmen.
+
+## Testning
 
 ```bash
-npm test   # runs the shared rules-engine unit test suite (vitest)
+npm test   # kör regelmotorns enhetstestsvit (vitest)
 ```

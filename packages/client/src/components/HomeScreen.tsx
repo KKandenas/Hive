@@ -16,10 +16,10 @@ export function HomeScreen({ onCreate, onJoin, onShowRules, busy, error }: HomeS
       <h1>
         <span className="hive-emoji">🐝</span> Hive
       </h1>
-      <p className="tagline">A game for two players, each on their own phone or tablet.</p>
+      <p className="tagline">Ett spel för två spelare, var och en på sin egen telefon eller platta.</p>
 
       <button className="primary-button" onClick={onCreate} disabled={busy}>
-        Create New Game
+        Starta nytt spel
       </button>
 
       <div className="join-row">
@@ -27,7 +27,7 @@ export function HomeScreen({ onCreate, onJoin, onShowRules, busy, error }: HomeS
           type="text"
           inputMode="text"
           autoCapitalize="characters"
-          placeholder="ROOM CODE"
+          placeholder="RUMSKOD"
           maxLength={4}
           value={code}
           onChange={(e) => setCode(e.target.value.toUpperCase())}
@@ -37,14 +37,14 @@ export function HomeScreen({ onCreate, onJoin, onShowRules, busy, error }: HomeS
           onClick={() => onJoin(code)}
           disabled={busy || code.trim().length === 0}
         >
-          Join Game
+          Gå med i spel
         </button>
       </div>
 
       {error && <p className="error-banner">{error}</p>}
 
       <button className="secondary-button rules-button" onClick={onShowRules}>
-        📖 How to play
+        📖 Spelregler
       </button>
     </div>
   );

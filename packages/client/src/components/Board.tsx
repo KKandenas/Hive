@@ -191,13 +191,13 @@ export function Board({ board, myColor, selectedFrom, highlightCells, onPieceTap
         </g>
       </svg>
       <div className="board-controls">
-        <button onClick={() => zoomBy(1.2)} aria-label="Zoom in">
+        <button onClick={() => zoomBy(1.2)} aria-label="Zooma in">
           +
         </button>
-        <button onClick={() => zoomBy(1 / 1.2)} aria-label="Zoom out">
+        <button onClick={() => zoomBy(1 / 1.2)} aria-label="Zooma ut">
           −
         </button>
-        <button onClick={recenter} aria-label="Center board">
+        <button onClick={recenter} aria-label="Centrera brädet">
           ⦿
         </button>
       </div>

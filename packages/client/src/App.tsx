@@ -191,7 +191,7 @@ export default function App() {
   }, [myColor, sendMove]);
 
   const handleLeave = useCallback(() => {
-    if (!window.confirm('Leave this game? The room code will stop working for you.')) return;
+    if (!window.confirm('Vill du lämna spelet? Rumskoden slutar fungera för dig.')) return;
     if (code && token) {
       const req: LeaveRoomRequest = { code, token };
       socket.emit(EVENTS.LEAVE_ROOM, req, () => {});
