@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: hive
+    runtime: node
+    plan: free
+    region: frankfurt
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_VERSION
+        value: 20.11.1
+    autoDeploy: true
