@@ -34,6 +34,11 @@ export interface LeaveRoomRequest {
   token: string;
 }
 
+export interface RematchRequest {
+  code: string;
+  token: string;
+}
+
 export interface StateUpdatePayload {
   state: SerializedGameState;
   opponentConnected: boolean;
@@ -52,4 +57,5 @@ export const EVENTS = {
   STATE_UPDATE: 'game:state',
   PRESENCE: 'room:presence',
   LEAVE_ROOM: 'room:leave',
+  REMATCH: 'game:rematch',
 } as const;

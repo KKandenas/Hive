@@ -15,6 +15,7 @@ import type {
   LeaveRoomRequest,
   Move,
   PresencePayload,
+  RematchRequest,
   RoomSnapshot,
   StateUpdatePayload,
 } from '@hive/shared';
@@ -66,8 +67,15 @@ export default function App() {
 
   useEffect(() => {
     function onStateUpdate(payload: StateUpdatePayload) {
-      setGameState(deserializeGameState(payload.state));
+      const next = deserializeGameState(payload.state);
+      setGameState(next);
       setOpponentConnected(payload.opponentConnected);
+      // A fresh game (e.g. after a rematch) always starts IN_PROGRESS -- clear any
+      // leftover "dismissed" flag from a previous game-over screen so the next one shows.
+      if (next.status === 'IN_PROGRESS') {
+        setGameOverDismissed(false);
+        setSelection(null);
+      }
     }
     function onPresence(payload: PresencePayload) {
       setOpponentConnected(payload.connected);
@@ -218,9 +226,13 @@ export default function App() {
   }, [gameState, leaveRoom]);
 
   const handlePlayAgain = useCallback(() => {
-    leaveRoom();
-    handleCreate();
-  }, [leaveRoom, handleCreate]);
+    if (!code || !token) return;
+    setError(null);
+    const req: RematchRequest = { code, token };
+    socket.emit(EVENTS.REMATCH, req, (res: { ok: true } | ErrorPayload) => {
+      if ('error' in res) setError(res.error);
+    });
+  }, [code, token]);
 
   const highlightCells: Axial[] = useMemo(() => {
     if (!legal || !selection || !isMyTurn) return [];

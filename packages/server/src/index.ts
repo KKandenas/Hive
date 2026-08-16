@@ -11,6 +11,7 @@ import type {
   JoinRoomRequest,
   LeaveRoomRequest,
   MakeMoveRequest,
+  RematchRequest,
   RoomSnapshot,
   StateUpdatePayload,
 } from '@hive/shared';
@@ -99,6 +100,26 @@ io.on('connection', (socket) => {
       return;
     }
     const result = rooms.applyPlayerMove(room, color, req.move);
+    if ('error' in result) {
+      ack({ error: result.error });
+      return;
+    }
+    ack({ ok: true });
+    broadcastState(room);
+  });
+
+  socket.on(EVENTS.REMATCH, (req: RematchRequest, ack: (res: { ok: true } | ErrorPayload) => void) => {
+    const room = rooms.getRoom(req.code);
+    if (!room) {
+      ack({ error: 'Rummet hittades inte.' });
+      return;
+    }
+    const color = rooms.seatForToken(room, req.token);
+    if (!color) {
+      ack({ error: 'Du är inte en registrerad spelare i det här rummet.' });
+      return;
+    }
+    const result = rooms.rematch(room);
     if ('error' in result) {
       ack({ error: result.error });
       return;

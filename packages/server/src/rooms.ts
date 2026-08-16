@@ -105,4 +105,13 @@ export class RoomStore {
     room.state = result.state;
     return { room };
   }
+
+  /** Resets the board for a fresh game in the same room, keeping both seats/tokens intact. */
+  rematch(room: Room): { error: string } | { room: Room } {
+    if (room.state.status === 'IN_PROGRESS') {
+      return { error: 'Spelet pågår fortfarande.' };
+    }
+    room.state = createInitialState();
+    return { room };
+  }
 }
