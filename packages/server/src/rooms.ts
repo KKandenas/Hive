@@ -1,19 +1,26 @@
 import { randomUUID } from 'node:crypto';
 import { applyMove, createInitialState } from '@hive/shared';
-import type { Color, GameState, Move } from '@hive/shared';
+import type { Color, Difficulty, GameState, Move } from '@hive/shared';
 
 interface Seat {
   token: string;
   socketId: string | null;
 }
 
+export interface BotInfo {
+  color: Color;
+  difficulty: Difficulty;
+}
+
 export interface Room {
   code: string;
   seats: Record<Color, Seat | null>;
   state: GameState;
+  bot: BotInfo | null;
 }
 
 const ROOM_CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no 0/O/1/I
+const OTHER: Record<Color, Color> = { WHITE: 'BLACK', BLACK: 'WHITE' };
 
 function generateRoomCode(): string {
   let code = '';
@@ -35,9 +42,27 @@ export class RoomStore {
       code,
       seats: { WHITE: { token, socketId: null }, BLACK: null },
       state: createInitialState(),
+      bot: null,
     };
     this.rooms.set(code, room);
     return { room, color: 'WHITE', token };
+  }
+
+  /** Creates a single-player room: the human takes `humanColor`, the other color is bot-controlled. */
+  createAiRoom(humanColor: Color, difficulty: Difficulty): { room: Room; color: Color; token: string } {
+    let code = generateRoomCode();
+    while (this.rooms.has(code)) code = generateRoomCode();
+
+    const token = randomUUID();
+    const room: Room = {
+      code,
+      seats: { WHITE: null, BLACK: null },
+      state: createInitialState(),
+      bot: { color: OTHER[humanColor], difficulty },
+    };
+    room.seats[humanColor] = { token, socketId: null };
+    this.rooms.set(code, room);
+    return { room, color: humanColor, token };
   }
 
   getRoom(code: string): Room | undefined {
@@ -60,6 +85,10 @@ export class RoomStore {
           return { room, color, token };
         }
       }
+    }
+
+    if (room.bot) {
+      return { error: 'Det här är ett spel mot AI, det går inte att gå med i.' };
     }
 
     for (const color of ['WHITE', 'BLACK'] as Color[]) {
@@ -90,6 +119,7 @@ export class RoomStore {
   }
 
   opponentConnected(room: Room, color: Color): boolean {
+    if (room.bot) return true;
     const otherColor: Color = color === 'WHITE' ? 'BLACK' : 'WHITE';
     return room.seats[otherColor]?.socketId != null;
   }

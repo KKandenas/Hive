@@ -4,8 +4,9 @@ import express from 'express';
 import cors from 'cors';
 import { createServer } from 'node:http';
 import { Server } from 'socket.io';
-import { EVENTS, serializeGameState } from '@hive/shared';
+import { EVENTS, applyMove, chooseBotMove, serializeGameState } from '@hive/shared';
 import type {
+  CreateAiRoomRequest,
   CreateRoomRequest,
   ErrorPayload,
   JoinRoomRequest,
@@ -30,6 +31,7 @@ const httpServer = createServer(app);
 const io = new Server(httpServer, { cors: { origin: '*' } });
 
 const rooms = new RoomStore();
+const pendingBotMoves = new Map<string, NodeJS.Timeout>();
 
 function snapshot(room: Room, color: Color, token: string): RoomSnapshot {
   return {
@@ -38,6 +40,8 @@ function snapshot(room: Room, color: Color, token: string): RoomSnapshot {
     token,
     state: serializeGameState(room.state),
     opponentConnected: rooms.opponentConnected(room, color),
+    vsBot: room.bot !== null,
+    botDifficulty: room.bot?.difficulty,
   };
 }
 
@@ -64,6 +68,32 @@ function broadcastPresence(room: Room): void {
   }
 }
 
+/** If it's the bot's turn, plays its move after a short "thinking" delay. */
+function scheduleBotMoveIfNeeded(room: Room): void {
+  const existing = pendingBotMoves.get(room.code);
+  if (existing) clearTimeout(existing);
+
+  if (!room.bot || room.state.status !== 'IN_PROGRESS' || room.state.turn !== room.bot.color) {
+    return;
+  }
+
+  const delay = 500 + Math.random() * 700;
+  const timer = setTimeout(() => {
+    pendingBotMoves.delete(room.code);
+    if (!room.bot || room.state.status !== 'IN_PROGRESS' || room.state.turn !== room.bot.color) return;
+    const move = chooseBotMove(room.state, room.bot.difficulty);
+    const result = applyMove(room.state, move);
+    if (result.error) {
+      console.error(`Bot produced an illegal move in room ${room.code}:`, move, result.error);
+      return;
+    }
+    room.state = result.state;
+    broadcastState(room);
+    scheduleBotMoveIfNeeded(room);
+  }, delay);
+  pendingBotMoves.set(room.code, timer);
+}
+
 io.on('connection', (socket) => {
   let joinedCode: string | null = null;
 
@@ -73,6 +103,15 @@ io.on('connection', (socket) => {
     socket.join(room.code);
     joinedCode = room.code;
     ack(snapshot(room, color, token));
+  });
+
+  socket.on(EVENTS.CREATE_AI_ROOM, (req: CreateAiRoomRequest, ack: (res: RoomSnapshot) => void) => {
+    const { room, color, token } = rooms.createAiRoom(req.color, req.difficulty);
+    room.seats[color]!.socketId = socket.id;
+    socket.join(room.code);
+    joinedCode = room.code;
+    ack(snapshot(room, color, token));
+    scheduleBotMoveIfNeeded(room);
   });
 
   socket.on(EVENTS.JOIN_ROOM, (req: JoinRoomRequest, ack: (res: RoomSnapshot | ErrorPayload) => void) => {
@@ -106,6 +145,7 @@ io.on('connection', (socket) => {
     }
     ack({ ok: true });
     broadcastState(room);
+    scheduleBotMoveIfNeeded(room);
   });
 
   socket.on(EVENTS.REMATCH, (req: RematchRequest, ack: (res: { ok: true } | ErrorPayload) => void) => {
@@ -126,6 +166,7 @@ io.on('connection', (socket) => {
     }
     ack({ ok: true });
     broadcastState(room);
+    scheduleBotMoveIfNeeded(room);
   });
 
   socket.on(EVENTS.LEAVE_ROOM, (req: LeaveRoomRequest, ack: (res: { ok: true } | ErrorPayload) => void) => {

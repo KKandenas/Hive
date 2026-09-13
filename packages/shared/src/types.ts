@@ -1,5 +1,7 @@
 export type Color = 'WHITE' | 'BLACK';
 
+export type Difficulty = 'EASY' | 'MEDIUM' | 'HARD';
+
 export type Insect = 'QUEEN' | 'BEETLE' | 'GRASSHOPPER' | 'SPIDER' | 'ANT';
 
 export const INSECT_COUNTS: Record<Insect, number> = {

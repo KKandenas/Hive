@@ -5,11 +5,12 @@ export interface HomeScreenProps {
   onCreate: () => void;
   onJoin: (code: string) => void;
   onShowRules: () => void;
+  onShowAiSetup: () => void;
   busy: boolean;
   error: string | null;
 }
 
-export function HomeScreen({ onCreate, onJoin, onShowRules, busy, error }: HomeScreenProps) {
+export function HomeScreen({ onCreate, onJoin, onShowRules, onShowAiSetup, busy, error }: HomeScreenProps) {
   const [code, setCode] = useState('');
 
   return (
@@ -21,6 +22,10 @@ export function HomeScreen({ onCreate, onJoin, onShowRules, busy, error }: HomeS
 
       <button className="primary-button" onClick={onCreate} disabled={busy}>
         Starta nytt spel
+      </button>
+
+      <button className="secondary-button ai-button" onClick={onShowAiSetup} disabled={busy}>
+        🤖 Spela mot AI
       </button>
 
       <div className="join-row">

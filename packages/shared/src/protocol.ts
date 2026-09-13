@@ -1,4 +1,4 @@
-import type { Color, Move } from './types.js';
+import type { Color, Difficulty, Move } from './types.js';
 import type { SerializedGameState } from './serialization.js';
 
 export interface RoomSnapshot {
@@ -7,6 +7,8 @@ export interface RoomSnapshot {
   token: string;
   state: SerializedGameState;
   opponentConnected: boolean;
+  vsBot: boolean;
+  botDifficulty?: Difficulty;
 }
 
 export interface ErrorPayload {
@@ -15,6 +17,11 @@ export interface ErrorPayload {
 
 export interface CreateRoomRequest {
   playerName?: string;
+}
+
+export interface CreateAiRoomRequest {
+  color: Color;
+  difficulty: Difficulty;
 }
 
 export interface JoinRoomRequest {
@@ -52,6 +59,7 @@ export interface PresencePayload {
 /** Socket.io event names shared between client and server. */
 export const EVENTS = {
   CREATE_ROOM: 'room:create',
+  CREATE_AI_ROOM: 'room:create-ai',
   JOIN_ROOM: 'room:join',
   MAKE_MOVE: 'game:move',
   STATE_UPDATE: 'game:state',

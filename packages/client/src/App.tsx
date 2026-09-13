@@ -8,6 +8,8 @@ import {
 import type {
   Axial,
   Color,
+  CreateAiRoomRequest,
+  Difficulty,
   ErrorPayload,
   GameState,
   Insect,
@@ -26,6 +28,7 @@ import { Board } from './components/Board.js';
 import { Tray } from './components/Tray.js';
 import { RulesModal } from './components/RulesModal.js';
 import { GameOverOverlay } from './components/GameOverOverlay.js';
+import { AiSetupModal } from './components/AiSetupModal.js';
 
 const STORAGE_KEY = 'hive.room';
 
@@ -61,7 +64,10 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [selection, setSelection] = useState<Selection>(null);
   const [showRules, setShowRules] = useState(false);
+  const [showAiSetup, setShowAiSetup] = useState(false);
   const [gameOverDismissed, setGameOverDismissed] = useState(false);
+  const [vsBot, setVsBot] = useState(false);
+  const [botDifficulty, setBotDifficulty] = useState<Difficulty | undefined>(undefined);
 
   const attemptedReconnect = useRef(false);
 
@@ -88,6 +94,18 @@ export default function App() {
     };
   }, []);
 
+  const applySnapshot = useCallback((res: RoomSnapshot) => {
+    setCode(res.code);
+    setToken(res.token);
+    setMyColor(res.color);
+    setGameState(deserializeGameState(res.state));
+    setOpponentConnected(res.opponentConnected);
+    setVsBot(res.vsBot);
+    setBotDifficulty(res.botDifficulty);
+    setGameOverDismissed(false);
+    saveStoredRoom({ code: res.code, token: res.token, color: res.color });
+  }, []);
+
   useEffect(() => {
     if (attemptedReconnect.current) return;
     const stored = loadStoredRoom();
@@ -101,50 +119,49 @@ export default function App() {
         saveStoredRoom(null);
         return;
       }
-      setCode(res.code);
-      setToken(res.token);
-      setMyColor(res.color);
-      setGameState(deserializeGameState(res.state));
-      setOpponentConnected(res.opponentConnected);
-      setGameOverDismissed(false);
-      saveStoredRoom({ code: res.code, token: res.token, color: res.color });
+      applySnapshot(res);
     });
-  }, []);
+  }, [applySnapshot]);
 
   const handleCreate = useCallback(() => {
     setBusy(true);
     setError(null);
     socket.emit(EVENTS.CREATE_ROOM, {}, (res: RoomSnapshot) => {
       setBusy(false);
-      setCode(res.code);
-      setToken(res.token);
-      setMyColor(res.color);
-      setGameState(deserializeGameState(res.state));
-      setOpponentConnected(res.opponentConnected);
-      setGameOverDismissed(false);
-      saveStoredRoom({ code: res.code, token: res.token, color: res.color });
+      applySnapshot(res);
     });
-  }, []);
+  }, [applySnapshot]);
 
-  const handleJoin = useCallback((roomCode: string) => {
-    setBusy(true);
-    setError(null);
-    const req: JoinRoomRequest = { code: roomCode.trim().toUpperCase() };
-    socket.emit(EVENTS.JOIN_ROOM, req, (res: RoomSnapshot | ErrorPayload) => {
-      setBusy(false);
-      if ('error' in res) {
-        setError(res.error);
-        return;
-      }
-      setCode(res.code);
-      setToken(res.token);
-      setMyColor(res.color);
-      setGameState(deserializeGameState(res.state));
-      setOpponentConnected(res.opponentConnected);
-      setGameOverDismissed(false);
-      saveStoredRoom({ code: res.code, token: res.token, color: res.color });
-    });
-  }, []);
+  const handleCreateAi = useCallback(
+    (color: Color, difficulty: Difficulty) => {
+      setBusy(true);
+      setError(null);
+      const req: CreateAiRoomRequest = { color, difficulty };
+      socket.emit(EVENTS.CREATE_AI_ROOM, req, (res: RoomSnapshot) => {
+        setBusy(false);
+        setShowAiSetup(false);
+        applySnapshot(res);
+      });
+    },
+    [applySnapshot],
+  );
+
+  const handleJoin = useCallback(
+    (roomCode: string) => {
+      setBusy(true);
+      setError(null);
+      const req: JoinRoomRequest = { code: roomCode.trim().toUpperCase() };
+      socket.emit(EVENTS.JOIN_ROOM, req, (res: RoomSnapshot | ErrorPayload) => {
+        setBusy(false);
+        if ('error' in res) {
+          setError(res.error);
+          return;
+        }
+        applySnapshot(res);
+      });
+    },
+    [applySnapshot],
+  );
 
   const legal = useMemo(() => {
     if (!gameState) return null;
@@ -216,14 +233,17 @@ export default function App() {
     setOpponentConnected(false);
     setSelection(null);
     setError(null);
+    setVsBot(false);
+    setBotDifficulty(undefined);
   }, [code, token]);
 
   const handleLeave = useCallback(() => {
     // No need to confirm once the game has already ended -- there's nothing left to lose.
     const gameIsOver = gameState?.status !== 'IN_PROGRESS';
-    if (!gameIsOver && !window.confirm('Vill du lämna spelet? Rumskoden slutar fungera för dig.')) return;
+    const confirmMessage = vsBot ? 'Vill du avsluta spelet mot AI?' : 'Vill du lämna spelet? Rumskoden slutar fungera för dig.';
+    if (!gameIsOver && !window.confirm(confirmMessage)) return;
     leaveRoom();
-  }, [gameState, leaveRoom]);
+  }, [gameState, vsBot, leaveRoom]);
 
   const handlePlayAgain = useCallback(() => {
     if (!code || !token) return;
@@ -245,8 +265,18 @@ export default function App() {
   if (!code || !gameState || !myColor) {
     return (
       <>
-        <HomeScreen onCreate={handleCreate} onJoin={handleJoin} onShowRules={() => setShowRules(true)} busy={busy} error={error} />
+        <HomeScreen
+          onCreate={handleCreate}
+          onJoin={handleJoin}
+          onShowRules={() => setShowRules(true)}
+          onShowAiSetup={() => setShowAiSetup(true)}
+          busy={busy}
+          error={error}
+        />
         {showRules && <RulesModal onClose={() => setShowRules(false)} />}
+        {showAiSetup && (
+          <AiSetupModal busy={busy} onClose={() => setShowAiSetup(false)} onStart={handleCreateAi} />
+        )}
       </>
     );
   }
@@ -259,6 +289,8 @@ export default function App() {
         turn={gameState.turn}
         status={gameState.status}
         opponentConnected={opponentConnected}
+        vsBot={vsBot}
+        botDifficulty={botDifficulty}
         canPass={!!legal?.canPass}
         onPass={handlePass}
         onShowRules={() => setShowRules(true)}

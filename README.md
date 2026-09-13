@@ -3,7 +3,8 @@
 En webbapp-implementation av **Hive**, det abstrakta strategispelet för två
 spelare som spelas med sexkantiga insektsbrickor istället för ett bräde.
 Varje spelare använder sin egen telefon, platta eller dator — öppna samma
-rum i en webbläsare på båda enheterna och spela tillsammans över nätverket.
+rum i en webbläsare på båda enheterna och spela tillsammans över nätverket
+— eller spela direkt mot en inbyggd AI-motståndare i tre svårighetsgrader.
 
 Pjäser: Bidrottning 🐝 (1), Skalbagge 🪲 (2), Gräshoppa 🦗 (3), Spindel 🕷️
 (2), Soldatmyra 🐜 (3) per spelare. Alla regler från grundspelet är
@@ -15,9 +16,9 @@ regeln, varje insekts rörelsemönster, en-kupa-regeln, rörelsefrihets­regeln
 
 Det här är ett npm-workspaces-monorepo:
 
-- `packages/shared` — Hive-regelmotorn (TypeScript, ramverksfri) och
-  protokolltyperna för klient/server-kommunikationen. Har sin egen
-  enhetstestsvit.
+- `packages/shared` — Hive-regelmotorn (TypeScript, ramverksfri), en enkel
+  AI-motståndare (`bot.ts`, tre svårighetsgrader) och protokolltyperna för
+  klient/server-kommunikationen. Har sin egen enhetstestsvit.
 - `packages/server` — en Express + Socket.IO-server som håller spelrummen
   och är den auktoritativa domaren för varje drag.
 - `packages/client` — en React + Vite-webbapp (mobilanpassad) som ritar upp
@@ -76,7 +77,9 @@ appen automatiskt enligt kommandona ovan.
 ## Så spelar du
 
 1. En spelare trycker på **Starta nytt spel** och delar den 4-teckens
-   rumskoden med den andra spelaren.
+   rumskoden med den andra spelaren. Eller tryck på **🤖 Spela mot AI** för
+   att spela direkt mot datorn — välj svårighetsgrad (Lätt/Medel/Svår) och
+   vilken färg du vill spela som, inget rum eller kod behövs.
 2. Den andra spelaren anger koden och trycker på **Gå med i spel**.
 3. Vit börjar. På din tur trycker du på en pjäs i ditt förråd för att
    placera den (brädet visar giltiga rutor), eller trycker på en av dina

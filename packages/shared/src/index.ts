@@ -5,3 +5,4 @@ export * from './pieces.js';
 export * from './engine.js';
 export * from './serialization.js';
 export * from './protocol.js';
+export * from './bot.js';
