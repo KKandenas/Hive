@@ -57,6 +57,17 @@ function broadcastState(room: Room): void {
   }
 }
 
+/** Pushes the room's current authoritative state to a single socket. Used to self-heal a
+ * client whose local view has drifted (e.g. it missed a broadcast after a reconnect) --
+ * without this, a rejected move for that reason would just keep failing forever. */
+function sendStateTo(socket: { id: string }, room: Room, color: Color): void {
+  const payload: StateUpdatePayload = {
+    state: serializeGameState(room.state),
+    opponentConnected: rooms.opponentConnected(room, color),
+  };
+  io.to(socket.id).emit(EVENTS.STATE_UPDATE, payload);
+}
+
 function broadcastPresence(room: Room): void {
   for (const color of ['WHITE', 'BLACK'] as Color[]) {
     const seat = room.seats[color];
@@ -141,6 +152,9 @@ io.on('connection', (socket) => {
     const result = rooms.applyPlayerMove(room, color, req.move);
     if ('error' in result) {
       ack({ error: result.error });
+      // The client's local board may have drifted from the server's (e.g. it missed a
+      // broadcast after a reconnect); resync it so a stale view doesn't keep rejecting.
+      sendStateTo(socket, room, color);
       return;
     }
     ack({ ok: true });
@@ -162,6 +176,7 @@ io.on('connection', (socket) => {
     const result = rooms.rematch(room);
     if ('error' in result) {
       ack({ error: result.error });
+      sendStateTo(socket, room, color);
       return;
     }
     ack({ ok: true });

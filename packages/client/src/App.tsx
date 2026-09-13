@@ -70,6 +70,12 @@ export default function App() {
   const [botDifficulty, setBotDifficulty] = useState<Difficulty | undefined>(undefined);
 
   const attemptedReconnect = useRef(false);
+  const codeRef = useRef<string | null>(null);
+  const tokenRef = useRef<string | null>(null);
+  useEffect(() => {
+    codeRef.current = code;
+    tokenRef.current = token;
+  }, [code, token]);
 
   useEffect(() => {
     function onStateUpdate(payload: StateUpdatePayload) {
@@ -121,6 +127,26 @@ export default function App() {
       }
       applySnapshot(res);
     });
+  }, [applySnapshot]);
+
+  // Socket.IO auto-reconnects after a network blip (e.g. phone locked, app
+  // backgrounded, wifi/cellular handoff) without a page reload -- but the
+  // server only associates a seat with a socket id via room:join, so a bare
+  // reconnect leaves this client unable to receive further broadcasts (its
+  // board silently goes stale) even though sending moves still appears to
+  // work. Re-join with the same token on every reconnect to re-sync.
+  useEffect(() => {
+    function onConnect() {
+      if (!codeRef.current || !tokenRef.current) return;
+      const req: JoinRoomRequest = { code: codeRef.current, token: tokenRef.current };
+      socket.emit(EVENTS.JOIN_ROOM, req, (res: RoomSnapshot | ErrorPayload) => {
+        if (!('error' in res)) applySnapshot(res);
+      });
+    }
+    socket.on('connect', onConnect);
+    return () => {
+      socket.off('connect', onConnect);
+    };
   }, [applySnapshot]);
 
   const handleCreate = useCallback(() => {
